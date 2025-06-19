@@ -50,7 +50,11 @@ def get_or_create_vectorstore(docs, user):
 def ask_persona(query: str, vectorstore, persona_name: str):
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.7)
 
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 10})
+    retriever = vectorstore.as_retriever(
+    search_type="mmr",       # more diverse results
+    search_kwargs={"k": 20}
+    )
+
     docs = retriever.get_relevant_documents(query)
 
     # Optional: Add reranking / keyword search later
