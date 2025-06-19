@@ -6,3 +6,4 @@ chats/
 *.faiss
 *.pkl
 *.log
+.env
