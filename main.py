@@ -77,9 +77,18 @@ if uploaded_file:
     if selected_user:
         st.markdown(f"💬 Mimicking **{selected_user}**'s style")
         docs = load_whatsapp_chat(text)
+
+        if not docs:
+            st.error(f"❌ No messages found for {selected_user}. Please check the file format.")
+            st.stop()
+
+        # Only reset chat history if new user is different
+        if st.session_state.persona != selected_user:
+            st.session_state.chat_history = []
+
         st.session_state.vectorstore = get_or_create_vectorstore(docs, selected_user)
         st.session_state.persona = selected_user
-        st.session_state.chat_history = []
+
 
 # -------------------------------
 # 💬 Chat section
