@@ -18,12 +18,18 @@ def get_or_create_vectorstore(docs, user):
     index_path = f"vectorstores/{user}"
     chat_path = f"chats/{user}.txt"
 
+    # ✅ If already exists, load from disk
     if os.path.exists(index_path) and os.path.exists(chat_path):
         print("✅ Loading existing vectorstore and chat...")
         return FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
 
-    print("🧹 Old files not found properly. Rebuilding...")
+    # 🚨 Check if empty docs passed
+    if not docs or len(docs) == 0:
+        raise ValueError(f"❌ No documents found to create vectorstore for '{user}'")
 
+    print("🧹 Rebuilding vectorstore...")
+
+    # 🔥 Clean old data (if any)
     if os.path.exists(index_path):
         shutil.rmtree(index_path)
     if os.path.exists(chat_path):
@@ -36,6 +42,7 @@ def get_or_create_vectorstore(docs, user):
         for d in docs:
             f.write(d.page_content + "\n")
 
+    # ✅ Now safe to create vectorstore
     vectorstore = FAISS.from_documents(docs, embeddings)
     vectorstore.save_local(index_path)
     return vectorstore
